@@ -6,8 +6,8 @@ import numpy as np
 scoring_matrix = read_scoring_mat('../BLOSUM50')
 
 #load in sequences
-positive = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Pospairs.txt')
-negative = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Negpairs.txt')
+positive = process_seq_file_list('../Pospairs.txt')
+negative = process_seq_file_list('../Negpairs.txt')
 
 
 '''
@@ -69,5 +69,5 @@ def vary_gap_penalties(pos_fa, neg_fa,max_gap, max_ext,score_mat):
     print('Best Extension:')
     print(best_ext)
     return fpr, best_gap, best_ext
-#vary_gap_penalties(positive, negative,20, 5,scoring_matrix)
+vary_gap_penalties(positive, negative,20, 5,scoring_matrix)
 
