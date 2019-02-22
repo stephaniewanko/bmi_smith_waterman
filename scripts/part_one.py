@@ -121,7 +121,7 @@ def pick_best_matrix():
         fpr=len(negative_score_list[negative_score_list>=score_threshold])/len(negative_score_list) #determine the numebr of neg sequences above the score threshold
         print(fpr)
 
-#pick_best_matrix()
+pick_best_matrix()
 '''
 #Question 2b: What are the performance rates of each of the matrices? (create ROC curve)
 '''
@@ -151,7 +151,7 @@ def performance_matrix():
             count+=1
         #combine the df
         combined = positive_score_df.append(pd.DataFrame(data = negative_score_df), ignore_index=True)
-        combined_sorted=combined.sort_values(['Max_Score'], ascending=False, )
+        combined_sorted=combined.sort_values(['Max_Score'], ascending=False)
         combined_sorted=combined_sorted.reset_index()
         for index, row in combined_sorted.iterrows():
             subset=combined_sorted[0:(index+1)]
@@ -163,24 +163,92 @@ def performance_matrix():
             combined_sorted.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted.index))
         combined_sorted['FPR']=combined_sorted['FP']/(combined_sorted['FP']+combined_sorted['TN'])
         combined_sorted['TPR']=combined_sorted['TP']/(combined_sorted['TP']+combined_sorted['FN'])
-        combined_sorted.to_csv('combined_sorted.csv', sep=',')
+        combined_sorted.to_csv('combined_sorted_'+i+'.csv', sep=',')
         #print(type(combined_sorted['FP'].values))
-        output_name='combined_score_'+i
+        output_name='combined_sorted_'+i
+        print(output_name)
         output_name=combined_sorted
-    plt.plot((combined_sorted_BLOSUM50['FPR'].values),combined_sorted_BLOSUM50['TPR'].values)
-    plt.plot((combined_sorted_BLOSUM62['FPR'].values),combined_sorted_BLOSUM62['TPR'].values)
-    plt.plot((combined_sorted_MATIO['FPR'].values),combined_sorted_MATIO['TPR'].values)
-    plt.plot((combined_sorted_PAM100['FPR'].values),combined_sorted_PAM100['TPR'].values)
-    plt.plot((combined_sorted_PAM250['FPR'].values),combined_sorted_PAM250['TPR'].values)
+        plt.plot(combined_sorted['FPR'].values,combined_sorted['TPR'].values, label=i)
+        print(output_name)
     plt.plot([0,1],[0,1], 'k--') #Identity Line
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.title('ROC Curves')
     plt.xlim(0,1)
+    plt.legend()
     plt.ylim(0,1)
     plt.axes().set_aspect('equal')
     plt.show()
-        #combined_sort['TP']=/combined_sort.index
-        #combined_sorted.to_csv(i + "_ROCinput.txt")
     return combined_sorted
-performance_matrix()
+#performance_matrix()
+
+
+
+
+
+
+def normalization():
+    negative_score_df=pd.DataFrame()
+    positive_score_df=pd.DataFrame()
+    matrix=read_scoring_mat('../BLOSUM62')
+    count=0
+    for j in positive:
+        trace,start_pos,max_score,main_bitch = build_matrix(j[0], j[1], 4,3,matrix) #we found out the best gap=4, ext=3
+        test=(j[0], j[1])
+        normalization_factor=(len(min(test, key=len)))
+        positive_score_df.loc[count, 'Max_Score'] = max_score
+        positive_score_df.loc[count, 'Max_Score_Normalize'] = max_score/normalization_factor
+        positive_score_df.loc[count, 'Pos_Neg'] = 'Positive'
+        count+=1
+    count=0
+    for j in negative:
+        trace,start_pos,max_score,main_bitch = build_matrix(j[0], j[1], 4,3,matrix) #we found out the best gap=4, ext=3
+        test=(j[0], j[1])
+        normalization_factor=(len(min(test, key=len)))
+        negative_score_df.loc[count, 'Max_Score_Normalize'] = max_score/normalization_factor
+        negative_score_df.loc[count, 'Max_Score'] = max_score
+        negative_score_df.loc[count, 'Pos_Neg'] = 'Negative'
+        count+=1
+    combined = positive_score_df.append(pd.DataFrame(data = negative_score_df), ignore_index=True)
+    combined_sorted=combined.sort_values(['Max_Score'], ascending=False)
+    combined_sorted=combined_sorted.reset_index()
+    combined_sorted_norm=combined.sort_values(['Max_Score_Normalize'], ascending=False)
+    combined_sorted_norm=combined_sorted_norm.reset_index()
+    print(combined_sorted_norm)
+    print('Regular:')
+    print(combined_sorted)
+    ##
+    for index, row in combined_sorted.iterrows():
+        subset=combined_sorted[0:(index+1)]
+        combined_sorted.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted.index))
+        combined_sorted.loc[index,'FP']=len(subset.loc[subset['Pos_Neg'] == 'Negative'].index)/(len(combined_sorted.index))
+        combined_sorted.loc[index,'FN']=(len(positive)-len(subset.loc[subset['Pos_Neg'] == 'Positive'].index))/(len(combined_sorted.index))
+        combined_sorted.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted.index))
+    combined_sorted['FPR']=combined_sorted['FP']/(combined_sorted['FP']+combined_sorted['TN'])
+    combined_sorted['TPR']=combined_sorted['TP']/(combined_sorted['TP']+combined_sorted['FN'])
+    combined_sorted.to_csv('combined_sorted.csv', sep=',')
+    plt.plot(combined_sorted['FPR'].values,combined_sorted['TPR'].values, label="BLOSUM62")
+
+    ####
+    for index, row in combined_sorted_norm.iterrows():
+        subset=combined_sorted_norm[0:(index+1)]
+        combined_sorted_norm.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted_norm.index))
+        combined_sorted_norm.loc[index,'FP']=len(subset.loc[subset['Pos_Neg'] == 'Negative'].index)/(len(combined_sorted_norm.index))
+        combined_sorted_norm.loc[index,'FN']=(len(positive)-len(subset.loc[subset['Pos_Neg'] == 'Positive'].index))/(len(combined_sorted_norm.index))
+        combined_sorted_norm.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted_norm.index))
+    combined_sorted_norm['FPR']=combined_sorted_norm['FP']/(combined_sorted_norm['FP']+combined_sorted_norm['TN'])
+    combined_sorted_norm['TPR']=combined_sorted_norm['TP']/(combined_sorted_norm['TP']+combined_sorted_norm['FN'])
+    combined_sorted.to_csv('combined_sorted_normalized.csv', sep=',')
+    plt.plot(combined_sorted_norm['FPR'].values,combined_sorted_norm['TPR'].values, label="Normalized")
+
+    plt.plot([0,1],[0,1], 'k--') #Identity Line
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curves')
+    plt.xlim(0,1)
+    plt.legend()
+    plt.ylim(0,1)
+    plt.axes().set_aspect('equal')
+    plt.show()
+    return combined_sorted
+#normalization()
