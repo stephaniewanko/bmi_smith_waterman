@@ -11,6 +11,8 @@ import numpy as np
 
 def read_seq(file_name):
     '''
+    INPUT:
+    OUTPUT:
     Given a .fa file, this function will read in the sequence & put it into a list
     '''
     seq1=""
@@ -21,12 +23,14 @@ def read_seq(file_name):
     return seq1
 
 def read_scoring_mat(file_name):
+  '''
+  INPUT:
+  OUTPUT:
+  '''
   scoring_mat = pd.read_fwf(file_name,header = 0, comment='#')
   scoring_mat.index = scoring_mat.columns.values.tolist()
   return scoring_mat
 
-
-#process the positive and negative list of sequences
 
 def process_seq_file_list(file_name):
     """
