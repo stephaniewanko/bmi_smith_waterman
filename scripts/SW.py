@@ -10,24 +10,10 @@ import math
 import numpy as np
 import itertools
 
-'''
-Note: testing function- does the same sequence get optimal scoring function
-
-'''
-
-#os.chdir('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23/')
-
-#scoring_mat=read_scoring_mat('PAM100')
-
-#os.chdir('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23/sequences/')
-#seq1=read_seq('prot-0069.fa')
-#seq2=read_seq('prot-0008.fa')
-
 
 def find_match_score(i, j, seq1, seq2, scoring_matrix):
     '''
-    This function is looking up the match/mismatch score for a pair of AA as indicated by the i/j character of seq1/se2
-    INPUT:
+    INPUT: 
     OUTPUT:
     '''
     value1 = seq1[i]
@@ -36,7 +22,7 @@ def find_match_score(i, j, seq1, seq2, scoring_matrix):
 
 def build_matrix(seq1, seq2, gap_cost, gap_ext, scoring_matrix):
     """
-    This function is going to create three matrices
+    This function is going to create three matrices, one with match scores, one with gaps in seq1, one with gaps in seq2
     INPUTS:
     seq1: sequence 1 to be aligned
     seq2: sequence 2 to be aligned
@@ -54,51 +40,51 @@ def build_matrix(seq1, seq2, gap_cost, gap_ext, scoring_matrix):
     max_score = 0
     max_pos = None
 
-    for i, j in itertools.product(range(1, len(seq1)+1), range(1, len(seq2)+1)): #iterate over each sequence
+    for i, j in itertools.product(range(1, len(seq1)+1), range(1, len(seq2)+1)): #iterate over each AA in each sequence
         match_score = find_match_score(i-1, j-1, seq1, seq2, scoring_matrix) #find the match and/or mismatch score for the item diagonally below the cell we are trying to fill in now
-        #for each matrix, decide which value is the lowest
-        lower_matrix[i][j] = max(lower_matrix[i-1][j] - gap_ext, middle_matrix[i-1][j] - gap_cost - gap_ext)
-        upper_matrix[i][j] = max(upper_matrix[i][j-1] - gap_ext, middle_matrix[i][j-1] - gap_cost - gap_ext)
+        #for each matrix, decide which value is the highest
+        lower_matrix[i][j] = max(lower_matrix[i-1][j] - gap_ext, middle_matrix[i-1][j] - gap_cost - gap_ext) #gaps in second seq
+        upper_matrix[i][j] = max(upper_matrix[i][j-1] - gap_ext, middle_matrix[i][j-1] - gap_cost - gap_ext) #gaps in first seq
         middle_matrix[i][j] = max(0, lower_matrix[i][j], upper_matrix[i][j], middle_matrix[i-1][j-1] + match_score)
-        if middle_matrix[i][j] > max_score:
+        if middle_matrix[i][j] > max_score: #we are keeping track of the maximum score (used for all the questions). 
             max_score = middle_matrix[i][j] # filling in the new maximum score
             max_pos = i, j #this is going to tell us where we want to start tracing back
         if middle_matrix[i][j] == middle_matrix[i-1][j-1] + match_score or middle_matrix[i][j] == 0: #if we moved diagonal or are starting back at a new substring, indicate staying on middle
             trace_matrix[i][j]= 1
-        elif middle_matrix[i][j] == upper_matrix[i][j]: #else if we are
+        elif middle_matrix[i][j] == upper_matrix[i][j]: #else if we are using a gap in the first sequence
             trace_matrix[i][j] = 2
-        else:
+        else: #else if we are using a gap in the second sequence
             trace_matrix[i][j] = 3
     return trace_matrix, max_pos, max_score, middle_matrix
 
-
+#testing
 #trace,start_pos,max_score,main_bitch=build_matrix(seq1, seq2, 2, 1, scoring_mat)
 
 
 #figure out which
 def traceback(trace_matrix, start_pos, seq1, seq2, main_matrix):
     '''
-    INPUT: Position= max position, where we want to star the alignment
+    INPUT: Position= start_pos, where we want to star the alignment
     '''
-    align1 = []
+    align1 = [] #start off with blank lists
     align2 = []
-    x, y = start_pos #start position
-    while main_matrix[x][y] != 0: #we are starting from the highest position, and moving down to when the match/mismatch is 0
+    x, y = start_pos #start position 
+    while main_matrix[x][y] != 0: #we are starting from the highest position (start position), and moving down to when the match/mismatch is 0
         if trace_matrix[x][y] == 1: #meaning we are staying in the main matrix (ie there was a match/mismatch)
-            x -= 1
-            y -= 1
-            align1 += seq1[x]
-            align2 += seq2[y]
+            x -= 1 #move diagoinally down
+            y -= 1 #move diagoinally down
+            align1 += seq1[x] #add value from both sequences to output
+            align2 += seq2[y] #add value from both sequences to output
 
         if trace_matrix[x][y] == 2: #meaning we had a gap in seq1
-            y -= 1
-            align1 += '-'
-            align2 += seq2[y]
+            y -= 1 #only move seq2 down
+            align1 += '-' #indicate gap in first sequence
+            align2 += seq2[y]#add value from second sequences to output
 
         if trace_matrix[x][y] == 3: #meaning we had a gap in seq2
-            x -= 1
-            align1 += seq1[x]
-            align2 += '-'
+            x -= 1 #only move seq2 down
+            align1 += seq1[x] #add value from first sequences to output
+            align2 += '-'#indicate gap in second sequence
     return ''.join(align1[::-1]), ''.join(align2[::-1]) #return each both reverse sequence
 
 #print(traceback(trace,start_pos,seq1,seq2,main_bitch))
