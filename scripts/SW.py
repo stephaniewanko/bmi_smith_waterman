@@ -13,8 +13,7 @@ import itertools
 
 def find_match_score(i, j, seq1, seq2, scoring_matrix):
     '''
-    INPUT: 
-    OUTPUT:
+    This script is to find the value in the scoring matrix of interest.
     '''
     value1 = seq1[i]
     value2 = seq2[j]
@@ -64,7 +63,7 @@ def build_matrix(seq1, seq2, gap_cost, gap_ext, scoring_matrix):
 #figure out which
 def traceback(trace_matrix, start_pos, seq1, seq2, main_matrix):
     '''
-    INPUT: Position= start_pos, where we want to star the alignment
+    This script will allow us to move along our trace matrix and output the sequences alignment for each sequence.
     '''
     align1 = [] #start off with blank lists
     align2 = []
