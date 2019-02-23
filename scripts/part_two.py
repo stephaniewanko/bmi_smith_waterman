@@ -4,17 +4,17 @@
 
 ##ANSWERING PART TWO
 
-from SW import *
-from file_processing import *
+from scripts import SW
+from scripts import file_processing
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-scoring_matrix = read_scoring_mat('../BLOSUM62') #best matrix
+scoring_matrix = file_processing.read_scoring_mat('../BLOSUM62') #best matrix
 
 #load in sequences
-positive = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Pospairs.txt')
-negative = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Negpairs.txt')
+positive = file_processing.process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Pospairs.txt')
+negative = file_processing.process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Negpairs.txt')
 
 '''
 Pre-Questions: Create an alignment for each positive pair of sequences and each negative pair of sequences
@@ -23,12 +23,12 @@ Pre-Questions: Create an alignment for each positive pair of sequences and each 
 def return_alignment():
     with open("Part2_BLOSUM62_seqoutput.txt", "w") as f:
         for seq in positive: #list of 2 sequences that go together
-            trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
-            seq1,seq2=traceback(trace, start_pos, seq[0], seq[1], main_bitch)
+            trace,start_pos,max_score,main_bitch=SW.build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
+            seq1,seq2=SW.traceback(trace, start_pos, seq[0], seq[1], main_bitch)
             f.write("{} {} {} Positive\n".format(seq1,seq2,max_score))
         for seq in negative: #list of 2 sequences that go together
-            trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
-            seq1,seq2=traceback(trace, start_pos, seq[0], seq[1], main_bitch)
+            trace,start_pos,max_score,main_bitch=SW.build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
+            seq1,seq2=SW.traceback(trace, start_pos, seq[0], seq[1], main_bitch)
             f.write("{} {} {} Negative\n".format(seq1,seq2,max_score))
 return_alignment()
 
