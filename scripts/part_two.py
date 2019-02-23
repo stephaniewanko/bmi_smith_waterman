@@ -21,6 +21,9 @@ Pre-Questions: Create an alignment for each positive pair of sequences and each 
 '''
 
 def return_alignment():
+    '''
+    This function will output the sequence alignments and scores using the scoring matrix BLOSUM62.
+    '''
     with open("Part2_BLOSUM62_seqoutput.txt", "w") as f:
         for seq in positive: #list of 2 sequences that go together
             trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
@@ -98,6 +101,9 @@ def calc_total_score(seq, scoring_mat, gap, ext):
     return float(score)
 
 def plot_ROC(positive_df, negative_df, label):
+    '''
+    This script will take in a list of positive values and a list of negative values and plot the ROC curve.
+    '''
         combined = positive_df.append(pd.DataFrame(data = negative_df), ignore_index=True)
         combined_sorted=combined.sort_values(['Max_Score'], ascending=False)
         combined_sorted=combined_sorted.reset_index()
@@ -117,6 +123,10 @@ def plot_ROC(positive_df, negative_df, label):
 
 
 def optimize_static(scoring_matrix):
+    '''
+    This script will use the static alignment, create new matrices and optomized. 
+    Finished with creating and ROC curve
+    '''
     #get initial scoring value
     starting_mat=scoring_matrix
     count=0
@@ -203,6 +213,11 @@ def optimize_static(scoring_matrix):
 
 
 def optomize_realign(pos,neg, original_matrix, new_matrix):
+    '''
+    This script will realign using the new matrix created in the optomized function . 
+    Finished with creating and ROC curve
+    '''
+    #doing this will the original matrix
     count=0
     negative_score_df_original=pd.DataFrame()
     positive_score_df_original=pd.DataFrame()
@@ -217,10 +232,10 @@ def optomize_realign(pos,neg, original_matrix, new_matrix):
         negative_score_df_original.loc[count, 'Max_Score'] = max_score
         negative_score_df_original.loc[count, 'Pos_Neg'] = 'Negative'
         count+=1
-    ### using new matrix
+    ### using new optomized matrix
     negative_score_df=pd.DataFrame()
     positive_score_df=pd.DataFrame()
-    for seq in positive: #list of 2 sequences that go together
+    for seq in positive: #list of 2 sequences that go together, iterate to get the max scores and put it into DF for the ROC curve
         trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1],4,3,new_matrix)
         positive_score_df.loc[count, 'Max_Score'] = max_score
         positive_score_df.loc[count, 'Pos_Neg'] = 'Positive'
@@ -234,7 +249,7 @@ def optomize_realign(pos,neg, original_matrix, new_matrix):
     combined = positive_score_df.append(pd.DataFrame(data = negative_score_df), ignore_index=True)
     combined_sorted=combined.sort_values(['Max_Score'], ascending=False)
     combined_sorted=combined_sorted.reset_index()
-    for index, row in combined_sorted.iterrows():
+    for index, row in combined_sorted.iterrows(): #see part one for df ROC explaination. 
         subset=combined_sorted[0:(index+1)]
         combined_sorted.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted.index))
         combined_sorted.loc[index,'FP']=len(subset.loc[subset['Pos_Neg'] == 'Negative'].index)/(len(combined_sorted.index))
@@ -255,7 +270,7 @@ def optomize_realign(pos,neg, original_matrix, new_matrix):
     combined_sorted_org['FPR']=combined_sorted_org['FP']/(combined_sorted_org['FP']+combined_sorted_org['TN'])
     combined_sorted_org['TPR']=combined_sorted_org['TP']/(combined_sorted_org['TP']+combined_sorted_org['FN'])
     print(combined_sorted_org)
-    plt.plot(combined_sorted_org['FPR'].values,combined_sorted_org['TPR'].values, label='Original Realign')
+    plt.plot(combined_sorted_org['FPR'].values,combined_sorted_org['TPR'].values, label='Original Realign') #plot ROC
     plt.plot([0,1],[0,1], 'k--') #Identity Line
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
@@ -267,6 +282,6 @@ def optomize_realign(pos,neg, original_matrix, new_matrix):
 #optomize_realign(positive,negative, scoring_matrix, new_matrix)
 
 #do it again with MATIO
-scoring_matrix_MATIO = read_scoring_mat('../MATIO') #best matrix
+scoring_matrix_MATIO = read_scoring_mat('../../MATIO') 
 new_matrix_MATIO, obj_fun=optimize_static(scoring_matrix_MATIO)
 optomize_realign(positive,negative, scoring_matrix, new_matrix_MATIO)
