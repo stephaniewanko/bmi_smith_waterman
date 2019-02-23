@@ -245,5 +245,5 @@ def normalization():
     plt.ylim(0,1)
     plt.axes().set_aspect('equal')
     plt.show()
-    return combined_sorted
+    return combined_sorted, combined_sorted_norm
 #normalization()
