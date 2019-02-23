@@ -15,7 +15,7 @@ def test_align_score():
 def test_optimization():
     base_mat=file_processing.read_scoring_mat("/home/travis/build/stephaniewanko/bmi_smith_waterman/BLOSUM62")
     new_matrix = file_processing.randomize_matrix(base_mat,5,10)
-    assert new_matrix.all() != base_mat.all()
+    assert new_matrix.equals(base_mat)=FALSE
     
  
 assert 1==1
