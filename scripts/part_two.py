@@ -10,11 +10,11 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-scoring_matrix = file_processing.read_scoring_mat('../BLOSUM62') #best matrix
+scoring_matrix = file_processing.read_scoring_mat('../../BLOSUM62') #best matrix
 
 #load in sequences
-positive = file_processing.process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Pospairs.txt')
-negative = file_processing.process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Negpairs.txt')
+positive = file_processing.process_seq_file_list('../../Pospairs.txt')
+negative = file_processing.process_seq_file_list('../../Negpairs.txt')
 
 '''
 Pre-Questions: Create an alignment for each positive pair of sequences and each negative pair of sequences
