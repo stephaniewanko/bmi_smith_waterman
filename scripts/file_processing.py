@@ -11,8 +11,6 @@ import numpy as np
 
 def read_seq(file_name):
     '''
-    INPUT:
-    OUTPUT:
     Given a .fa file, this function will read in the sequence & put it into a list
     '''
     seq1=""
@@ -24,8 +22,7 @@ def read_seq(file_name):
 
 def read_scoring_mat(file_name):
   '''
-  INPUT:
-  OUTPUT:
+  This is going to read in a txt file that contains a prefilled scoring matrix.
   '''
   scoring_mat = pd.read_fwf(file_name,header = 0, comment='#')
   scoring_mat.index = scoring_mat.columns.values.tolist()
