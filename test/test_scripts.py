@@ -1,6 +1,6 @@
 
-import os
-
+import sys
+sys.path.append('../scripts/')
 from SW import *
 from file_processing import *
 from part_two import * 
