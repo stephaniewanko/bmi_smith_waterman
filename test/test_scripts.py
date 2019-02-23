@@ -14,6 +14,7 @@ def test_align_score():
  def test_optimization():
     base_mat=read_scoring_mat("BLOSUM62")
     new_matrix = randomize_matrix(base_mat,i,j)
-    new_matrix != base_mat
+    assert new_matrix != base_mat
     
-
+ 
+assert 1==1
