@@ -3,7 +3,6 @@ import sys
 sys.path.append('../scripts/')
 from scripts import SW
 from scripts import file_processing
-from scripts import part_two 
 
 #test alignment
 def test_align_score():
@@ -15,7 +14,7 @@ def test_align_score():
 
 def test_optimization():
     base_mat=file_processing.read_scoring_mat("../BLOSUM62")
-    new_matrix = part_two.randomize_matrix(base_mat,i,j)
+    new_matrix = file_processing.randomize_matrix(base_mat,i,j)
     assert new_matrix != base_mat
     
  
