@@ -18,12 +18,6 @@ positive = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_
 negative = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Negpairs.txt')
 
 
-	# Create alignments for each positive and negative pair of alignments
-#	run_alignment(pos_seqs, score_mats.get(best_mat), out_align=True, outfile="alignments_pos.txt")
-#	run_alignment(neg_seqs, score_mats.get(best_mat), out_align=True, outfile="alignments_neg.txt")
-
-
-
 '''
 Question 1a:
 Consider the false positive rate (proportion of negative pairs with scores that exceed a scorethreshold)
@@ -44,19 +38,18 @@ def vary_gap_penalties(pos_fa, neg_fa,max_gap, max_ext,score_mat):
     INPUT: positive and negative sequences, max gap and ext, dict of scores
     OUTPUT: file with optimal gap and extension
     '''
-    fpr=100
-    best_gap=0
+    fpr=100 #we are starting with an arbitarily high FPR
+    best_gap=0 #start will low gap and ext values
     best_ext=0
-    positive_score_list = np.zeros(len(pos_fa))
-    negative_score_list = np.zeros(len(neg_fa))
-    for i,j in itertools.product(range(1, max_gap+1), range(1, max_ext+1)): #i==max_gap  #j==max_ext
+    #iterate over each pair of sequences 
+    for i,j in itertools.product(range(1, max_gap+1), range(1, max_ext+1)): #i==max_gap  #j==max_ext 
         print(i,j)
-        positive_score_list = np.zeros(len(pos_fa))
+        positive_score_list = np.zeros(len(pos_fa)) #create list to keep list of scores in
         negative_score_list = np.zeros(len(neg_fa))
         #for each pair of gap and ext values, iterate over each pair of negative and positive sequences. Return the alignment score
         count=0
         for seq in pos_fa: #list of 2 sequences that go together
-            trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], i,j,score_mat)
+            trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], i,j,score_mat) #align and get the max score out of the SW algorithm
             positive_score_list[count] = max_score
             count+=1
             #np.append(positive_score_list,max_score)
@@ -68,7 +61,7 @@ def vary_gap_penalties(pos_fa, neg_fa,max_gap, max_ext,score_mat):
             #negative_score_list=np.append(negative_score_list,max_score)
         #calculate TPR + FPR
         #sort positive_score_list
-        sorted_pos_scores=np.sort(positive_score_list)[::-1]
+        sorted_pos_scores=np.sort(positive_score_list)[::-1] #reverse the order of the positive scores
         tpr_cutoff=0.7*len(sorted_pos_scores) #we want to keep the TPR at 0.7. Determine score cutoff at that level.
         score_threshold=sorted_pos_scores[int(tpr_cutoff)] #determine the score threshold
         tmp_fpr=len(negative_score_list[negative_score_list>=score_threshold])/len(negative_score_list) #determine the numebr of neg sequences above the score threshold
