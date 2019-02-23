@@ -4,18 +4,17 @@
 
 ##ANSWERING PART TWO
 
-from scripts import SW
-from scripts import file_processing
+from SW import *
+from file_processing import *
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-scoring_matrix = file_processing.read_scoring_mat('/home/travis/build/stephaniewanko/bmi_smith_waterman/BLOSUM62') #best matrix
+scoring_matrix = read_scoring_mat('../BLOSUM62') #best matrix
 
 #load in sequences
-positive = file_processing.process_seq_file_list('/home/travis/build/stephaniewanko/bmi_smith_waterman/Pospairs.txt')
-negative = file_processing.process_seq_file_list('/home/travis/build/stephaniewanko/bmi_smith_waterman/Negpairs.txt')
-
+positive = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Pospairs.txt')
+negative = process_seq_file_list('/Users/stephaniewankowicz/Dropbox/BMI_203/HW3_due_02_23_GIT/Negpairs.txt')
 
 '''
 Pre-Questions: Create an alignment for each positive pair of sequences and each negative pair of sequences
@@ -24,12 +23,12 @@ Pre-Questions: Create an alignment for each positive pair of sequences and each 
 def return_alignment():
     with open("Part2_BLOSUM62_seqoutput.txt", "w") as f:
         for seq in positive: #list of 2 sequences that go together
-            trace,start_pos,max_score,main_bitch=SW.build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
-            seq1,seq2=SW.traceback(trace, start_pos, seq[0], seq[1], main_bitch)
+            trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
+            seq1,seq2=traceback(trace, start_pos, seq[0], seq[1], main_bitch)
             f.write("{} {} {} Positive\n".format(seq1,seq2,max_score))
         for seq in negative: #list of 2 sequences that go together
-            trace,start_pos,max_score,main_bitch=SW.build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
-            seq1,seq2=SW.traceback(trace, start_pos, seq[0], seq[1], main_bitch)
+            trace,start_pos,max_score,main_bitch=build_matrix(seq[0], seq[1], 5,3,scoring_matrix)
+            seq1,seq2=traceback(trace, start_pos, seq[0], seq[1], main_bitch)
             f.write("{} {} {} Negative\n".format(seq1,seq2,max_score))
 return_alignment()
 
@@ -148,7 +147,7 @@ def optimize_static(scoring_matrix):
     print('original object function')
     print(obj_fun)
     iterations=0
-    while(iterations<100): #iterate 10 times
+    while(iterations<500): #iterate 10 times
         #first, mutate the matrix
         i=np.random.choice(range(len(starting_mat.columns)))
         j=np.random.choice(range(len(starting_mat.columns)))
@@ -178,7 +177,6 @@ def optimize_static(scoring_matrix):
     combined = positive_score_df.append(pd.DataFrame(data = negative_score_df), ignore_index=True)
     combined_sorted=combined.sort_values(['Max_Score'], ascending=False)
     combined_sorted=combined_sorted.reset_index()
-    print(combined_sorted)
     for index, row in combined_sorted.iterrows():
         subset=combined_sorted[0:(index+1)]
         combined_sorted.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted.index))
@@ -187,39 +185,21 @@ def optimize_static(scoring_matrix):
         combined_sorted.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted.index))
     combined_sorted['FPR']=combined_sorted['FP']/(combined_sorted['FP']+combined_sorted['TN'])
     combined_sorted['TPR']=combined_sorted['TP']/(combined_sorted['TP']+combined_sorted['FN'])
-    print(combined_sorted.head())
-        #combined_sorted.to_csv('combined_sorted.csv', sep=',')
-    plt.plot(combined_sorted['FPR'].values,combined_sorted['TPR'].values, label='Optomized')
     combined_org = positive_score_df_original.append(pd.DataFrame(data = negative_score_df_original), ignore_index=True)
     combined_sorted_org=combined_org.sort_values(['Max_Score'], ascending=False)
     combined_sorted_org=combined_sorted_org.reset_index()
-    print(combined_sorted_org)
     for index, row in combined_sorted_org.iterrows():
         subset=combined_sorted_org[0:(index+1)]
-        print(subset)
         combined_sorted_org.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted_org.index))
         combined_sorted_org.loc[index,'FP']=len(subset.loc[subset['Pos_Neg'] == 'Negative'].index)/(len(combined_sorted_org.index))
         combined_sorted_org.loc[index,'FN']=(len(positive)-len(subset.loc[subset['Pos_Neg'] == 'Positive'].index))/(len(combined_sorted_org.index))
         combined_sorted_org.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted_org.index))
     combined_sorted_org['FPR']=combined_sorted_org['FP']/(combined_sorted_org['FP']+combined_sorted_org['TN'])
     combined_sorted_org['TPR']=combined_sorted_org['TP']/(combined_sorted_org['TP']+combined_sorted_org['FN'])
-    print(combined_sorted_org.head())
-    plt.plot(combined_sorted_org['FPR'].values,combined_sorted_org['TPR'].values, label='Original BLOSUM62')
-    #plot_ROC(positive_score_df_original, positive_score_df_original, 'Original BLOSUM62 Matrix')
-    #plot_ROC(positive_score_df, positive_score_df, 'Optomized Matrix')
-    plt.plot([0,1],[0,1], 'k--') #Identity Line
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('ROC Curves')
-    plt.xlim(0,1)
-    plt.legend()
-    plt.ylim(0,1)
-    plt.axes().set_aspect('equal')
-    plt.show()
-    return starting_mat, obj_fun
+    return testing_matrix, obj_fun
 
 
-new_matrix, obj_fun=optimize_static(scoring_matrix)
+#new_matrix, obj_fun=optimize_static(scoring_matrix)
 
 
 def optomize_realign(pos,neg, original_matrix, new_matrix):
@@ -251,20 +231,42 @@ def optomize_realign(pos,neg, original_matrix, new_matrix):
         negative_score_df.loc[count, 'Max_Score'] = max_score
         negative_score_df.loc[count, 'Pos_Neg'] = 'Negative'
         count+=1
-    plot_ROC(positive_score_df_original, positive_score_df_original, 'Original BLOSUM62 Matrix')
-    plot_ROC(positive_score_df, positive_score_df, 'Optomized Matrix')
+    combined = positive_score_df.append(pd.DataFrame(data = negative_score_df), ignore_index=True)
+    combined_sorted=combined.sort_values(['Max_Score'], ascending=False)
+    combined_sorted=combined_sorted.reset_index()
+    for index, row in combined_sorted.iterrows():
+        subset=combined_sorted[0:(index+1)]
+        combined_sorted.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted.index))
+        combined_sorted.loc[index,'FP']=len(subset.loc[subset['Pos_Neg'] == 'Negative'].index)/(len(combined_sorted.index))
+        combined_sorted.loc[index,'FN']=(len(positive)-len(subset.loc[subset['Pos_Neg'] == 'Positive'].index))/(len(combined_sorted.index))
+        combined_sorted.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted.index))
+    combined_sorted['FPR']=combined_sorted['FP']/(combined_sorted['FP']+combined_sorted['TN'])
+    combined_sorted['TPR']=combined_sorted['TP']/(combined_sorted['TP']+combined_sorted['FN'])
+    plt.plot(combined_sorted['FPR'].values,combined_sorted['TPR'].values, label='Optomized Realign')
+    combined_org = positive_score_df_original.append(pd.DataFrame(data = negative_score_df_original), ignore_index=True)
+    combined_sorted_org=combined_org.sort_values(['Max_Score'], ascending=False)
+    combined_sorted_org=combined_sorted_org.reset_index()
+    for index, row in combined_sorted_org.iterrows():
+        subset=combined_sorted_org[0:(index+1)]
+        combined_sorted_org.loc[index,'TP']=len(subset.loc[subset['Pos_Neg'] == 'Positive'].index)/(len(combined_sorted_org.index))
+        combined_sorted_org.loc[index,'FP']=len(subset.loc[subset['Pos_Neg'] == 'Negative'].index)/(len(combined_sorted_org.index))
+        combined_sorted_org.loc[index,'FN']=(len(positive)-len(subset.loc[subset['Pos_Neg'] == 'Positive'].index))/(len(combined_sorted_org.index))
+        combined_sorted_org.loc[index,'TN']=(len(negative)-len(subset.loc[subset['Pos_Neg'] == 'Negative'].index))/(len(combined_sorted_org.index))
+    combined_sorted_org['FPR']=combined_sorted_org['FP']/(combined_sorted_org['FP']+combined_sorted_org['TN'])
+    combined_sorted_org['TPR']=combined_sorted_org['TP']/(combined_sorted_org['TP']+combined_sorted_org['FN'])
+    print(combined_sorted_org)
+    plt.plot(combined_sorted_org['FPR'].values,combined_sorted_org['TPR'].values, label='Original Realign')
     plt.plot([0,1],[0,1], 'k--') #Identity Line
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    #plt.title('ROC Curves')
     plt.xlim(0,1)
     plt.legend()
     plt.ylim(0,1)
     plt.axes().set_aspect('equal')
     plt.show()
-optomize_realign(positive,negative, scoring_matrix, new_matrix)
+#optomize_realign(positive,negative, scoring_matrix, new_matrix)
 
 #do it again with MATIO
 scoring_matrix_MATIO = read_scoring_mat('../MATIO') #best matrix
 new_matrix_MATIO, obj_fun=optimize_static(scoring_matrix_MATIO)
-optomize_realign(positive,negative, scoring_matrix_MATIO, new_matrix_MATIO)
+optomize_realign(positive,negative, scoring_matrix, new_matrix_MATIO)
