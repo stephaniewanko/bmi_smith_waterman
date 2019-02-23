@@ -10,7 +10,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-scoring_matrix = file_processing.read_scoring_mat('../../BLOSUM62') #best matrix
+scoring_matrix = file_processing.read_scoring_mat('/home/travis/build/stephaniewanko/bmi_smith_waterman/BLOSUM62') #best matrix
 
 #load in sequences
 positive = file_processing.process_seq_file_list('/home/travis/build/stephaniewanko/bmi_smith_waterman/Pospairs.txt')
