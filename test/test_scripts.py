@@ -11,7 +11,7 @@ def test_align_score():
     trace_matrix, max_pos, max_score, middle_matrix=build_matrix(seq1, seq2, gap_cost, gap_ext, scoring_matrix)
     assert max_score==5
 
- def test_optimization():
+def test_optimization():
     base_mat=read_scoring_mat("BLOSUM62")
     new_matrix = randomize_matrix(base_mat,i,j)
     assert new_matrix != base_mat
