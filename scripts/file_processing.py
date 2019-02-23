@@ -48,3 +48,14 @@ def process_seq_file_list(file_name):
         seq1, seq2 = seq1.replace("x","*"), seq2.replace("x","*")
         seqs.append((seq1, seq2))
     return seqs
+
+def randomize_matrix(base_mat,i,j):
+    '''
+    This funciton is going to grab a random value between -10 and 10 and put it into the matrix. The SW algo will then run
+    INPUT: Input matrix, i&j are the spots on the matrix you want to change
+    OUTPUT: New matrix to test SW algorithm on.
+    '''
+    new_score = np.random.choice(range(-10,10))
+    base_mat.iloc[i,j]=new_score
+    base_mat.iloc[j,i]=new_score
+    return(base_mat)
