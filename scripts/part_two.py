@@ -16,6 +16,7 @@ scoring_matrix = file_processing.read_scoring_mat('/home/travis/build/stephaniew
 positive = file_processing.process_seq_file_list('/home/travis/build/stephaniewanko/bmi_smith_waterman/Pospairs.txt')
 negative = file_processing.process_seq_file_list('/home/travis/build/stephaniewanko/bmi_smith_waterman/Negpairs.txt')
 
+
 '''
 Pre-Questions: Create an alignment for each positive pair of sequences and each negative pair of sequences
 '''
