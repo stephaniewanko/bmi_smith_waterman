@@ -1,6 +1,9 @@
 # bmi_smith_waterman
 HW #3 for UCSF BMI 203
 
+[![Build
+Status](https://travis-ci.org/ucsf-bmi-203-2017/example.svg?branch=master)](https://travis-ci.org/stephaniewanko/bmi_smith_waterman)
+
 usage
 To use the package, first make a new conda environment and activate it
 
